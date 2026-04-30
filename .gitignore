@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.production
+expenseiq.db
+expenseiq.db-shm
+expenseiq.db-wal
