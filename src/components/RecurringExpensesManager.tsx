@@ -46,7 +46,7 @@ export default function RecurringExpensesManager() {
 
   return (
     <div className="space-y-5">
-      <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+      <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
         <div className="flex items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
             <CalendarSync size={18} className="text-cyan-400" />
@@ -69,7 +69,7 @@ export default function RecurringExpensesManager() {
             onChange={(e) => setDescription(e.target.value)}
             required
             placeholder="Netflix, Rent, Internet..."
-            className="lg:col-span-2 bg-[#0f1117] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500"
+            className="lg:col-span-2 bg-[var(--bg-primary)] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500"
           />
           <input
             type="number"
@@ -79,12 +79,12 @@ export default function RecurringExpensesManager() {
             onChange={(e) => setAmount(e.target.value)}
             required
             placeholder="0.00"
-            className="bg-[#0f1117] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500"
+            className="bg-[var(--bg-primary)] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500"
           />
           <select
             value={currencyCode}
             onChange={(e) => setCurrencyCode(normalizeCurrencyCode(e.target.value))}
-            className="bg-[#0f1117] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500"
+            className="bg-[var(--bg-primary)] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500"
           >
             {Object.values(SUPPORTED_CURRENCIES).map((currency) => (
               <option key={currency.code} value={currency.code}>{currency.code}</option>
@@ -93,7 +93,7 @@ export default function RecurringExpensesManager() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as typeof category)}
-            className="bg-[#0f1117] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500"
+            className="bg-[var(--bg-primary)] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500"
           >
             {CATEGORIES.map((entry) => (
               <option key={entry} value={entry}>{entry}</option>
@@ -107,14 +107,14 @@ export default function RecurringExpensesManager() {
             onChange={(e) => setDayOfMonth(e.target.value)}
             required
             placeholder="Day"
-            className="bg-[#0f1117] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500"
+            className="bg-[var(--bg-primary)] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500"
           />
           <input
             type="month"
             value={startMonth}
             onChange={(e) => setStartMonth(e.target.value)}
             required
-            className="bg-[#0f1117] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500"
+            className="bg-[var(--bg-primary)] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500"
           />
 
           <button
@@ -128,7 +128,7 @@ export default function RecurringExpensesManager() {
         </form>
       </div>
 
-      <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+      <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <Repeat size={16} className="text-cyan-400" />
           <h3 className="font-semibold text-white">Current Rules</h3>

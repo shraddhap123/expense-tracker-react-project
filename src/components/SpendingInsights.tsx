@@ -69,7 +69,7 @@ export default function SpendingInsights({ month }: Props) {
 
   if (loading) {
     return (
-      <section className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+      <section className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
         <div className="flex items-center gap-2 text-sm text-gray-400">
           <LoaderCircle size={16} className="animate-spin text-cyan-400" />
           Building your money coach for {parseMonthLabel(month)}...
@@ -80,7 +80,7 @@ export default function SpendingInsights({ month }: Props) {
 
   if (!analysis) {
     return (
-      <section className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+      <section className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
         <div className="flex items-center gap-2 text-sm text-red-300">
           <AlertTriangle size={16} />
           Could not load your money coach right now.
@@ -90,7 +90,7 @@ export default function SpendingInsights({ month }: Props) {
   }
 
   return (
-    <section className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5 space-y-5">
+    <section className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5 space-y-5">
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
@@ -240,14 +240,14 @@ export default function SpendingInsights({ month }: Props) {
               value={plannedPurchase}
               onChange={(e) => setPlannedPurchase(e.target.value)}
               placeholder="900"
-              className="bg-[#0f1117] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500"
+              className="bg-[var(--bg-primary)] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500"
             />
             <input
               type="text"
               value={plannedLabel}
               onChange={(e) => setPlannedLabel(e.target.value)}
               placeholder="Trip, laptop, concert..."
-              className="bg-[#0f1117] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500"
+              className="bg-[var(--bg-primary)] border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500"
             />
             <button
               type="submit"
@@ -275,15 +275,15 @@ export default function SpendingInsights({ month }: Props) {
                 </Pill>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="rounded-lg bg-[#0f1117] px-3 py-2">
+                <div className="rounded-lg bg-[var(--bg-primary)] px-3 py-2">
                   <p className="text-[11px] text-gray-500">Remaining before purchase</p>
                   <p className="text-sm font-semibold text-white">{formatCurrency(affordability.remainingBudget)}</p>
                 </div>
-                <div className="rounded-lg bg-[#0f1117] px-3 py-2">
+                <div className="rounded-lg bg-[var(--bg-primary)] px-3 py-2">
                   <p className="text-[11px] text-gray-500">Safety buffer</p>
                   <p className="text-sm font-semibold text-white">{formatCurrency(affordability.safetyBuffer)}</p>
                 </div>
-                <div className="rounded-lg bg-[#0f1117] px-3 py-2">
+                <div className="rounded-lg bg-[var(--bg-primary)] px-3 py-2">
                   <p className="text-[11px] text-gray-500">Still-expected recurring</p>
                   <p className="text-sm font-semibold text-white">{formatCurrency(affordability.recurringGap)}</p>
                 </div>

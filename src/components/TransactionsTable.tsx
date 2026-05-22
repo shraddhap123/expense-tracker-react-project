@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Trash2, Edit2, Check, X, Search, ListFilter, Repeat } from 'lucide-react';
+import { Trash2, Edit2, Check, X, Search, ListFilter, Repeat, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const PAGE_SIZE = 20;
 import { type Expense, type Remittance, type Investment } from '../api/client';
 import { removeExpense, removeRemittance, removeInvestment, editExpense } from '../hooks/useDB';
 import { CATEGORY_EMOJI, CATEGORY_COLORS, formatCurrency, formatOriginalCurrency } from '../db/database';
@@ -24,6 +26,7 @@ export default function TransactionsTable({ expenses, remittances, investments }
   const [searchQuery, setSearchQuery] = useState('');
   const [kindFilter, setKindFilter] = useState<'all' | Row['kind']>('all');
   const [categoryFilter, setCategoryFilter] = useState<'all' | string>('all');
+  const [page, setPage] = useState(1);
 
   const rows: Row[] = [
     ...expenses.map(d    => ({ kind: 'expense' as const, data: d })),
@@ -66,6 +69,9 @@ export default function TransactionsTable({ expenses, remittances, investments }
     });
   }, [categoryFilter, kindFilter, rows, searchQuery]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
+  const pagedRows = filteredRows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   const handleDelete = async (row: Row) => {
     const key = `${row.kind}-${row.data.id}`;
     if (confirmDelete === key) {
@@ -99,23 +105,23 @@ export default function TransactionsTable({ expenses, remittances, investments }
 
   if (rows.length === 0) {
     return (
-      <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-8 text-center text-gray-500">
+      <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-8 text-center text-gray-500">
         No transactions yet. Add one using the <span className="text-purple-400">+ Add Entry</span> button.
       </div>
     );
   }
 
   return (
-    <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl overflow-hidden">
+    <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl overflow-hidden">
       <div className="border-b border-white/10 px-4 py-4 bg-white/[0.02]">
         <div className="flex flex-col lg:flex-row lg:items-center gap-3">
           <div className="relative flex-1">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
             <input
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
               placeholder="Search description, date, category, or amount"
-              className="w-full pl-10 pr-4 py-2.5 bg-[#0f1117] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
 
@@ -125,7 +131,7 @@ export default function TransactionsTable({ expenses, remittances, investments }
               <select
                 value={kindFilter}
                 onChange={(e) => setKindFilter(e.target.value as 'all' | Row['kind'])}
-                className="px-3 py-2.5 bg-[#0f1117] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="px-3 py-2.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
                 <option value="all">All types</option>
                 <option value="expense">Expenses</option>
@@ -137,7 +143,7 @@ export default function TransactionsTable({ expenses, remittances, investments }
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-3 py-2.5 bg-[#0f1117] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="px-3 py-2.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option value="all">All categories</option>
               {expenseCategories.map((category) => (
@@ -157,6 +163,7 @@ export default function TransactionsTable({ expenses, remittances, investments }
                 setSearchQuery('');
                 setKindFilter('all');
                 setCategoryFilter('all');
+                setPage(1);
               }}
               className="text-purple-400 hover:text-purple-300"
             >
@@ -178,7 +185,7 @@ export default function TransactionsTable({ expenses, remittances, investments }
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {filteredRows.map((row) => {
+            {pagedRows.map((row) => {
               const key = `${row.kind}-${row.data.id}`;
               const isEditing    = row.kind === 'expense' && editId === row.data.id;
               const isConfirming = confirmDelete === key;
@@ -292,6 +299,49 @@ export default function TransactionsTable({ expenses, remittances, investments }
       {filteredRows.length === 0 && (
         <div className="px-4 py-10 text-center text-sm text-gray-500 border-t border-white/10">
           No transactions match your current search or filters.
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="border-t border-white/10 px-4 py-3 flex items-center justify-between text-sm">
+          <span className="text-gray-500 text-xs">
+            Page {page} of {totalPages} &nbsp;·&nbsp; {filteredRows.length} transactions
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(n => n === 1 || n === totalPages || Math.abs(n - page) <= 1)
+              .reduce<(number | '...')[]>((acc, n, i, arr) => {
+                if (i > 0 && n - (arr[i - 1] as number) > 1) acc.push('...');
+                acc.push(n);
+                return acc;
+              }, [])
+              .map((n, i) =>
+                n === '...'
+                  ? <span key={`ellipsis-${i}`} className="px-1 text-gray-600">…</span>
+                  : <button
+                      key={n}
+                      onClick={() => setPage(n as number)}
+                      className={`w-7 h-7 rounded-lg text-xs font-medium transition-all ${
+                        page === n ? 'bg-purple-600 text-white' : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+                      }`}
+                    >{n}</button>
+              )}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
         </div>
       )}
     </div>

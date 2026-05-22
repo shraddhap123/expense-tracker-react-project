@@ -9,7 +9,7 @@ if (!JWT_SECRET) {
   throw new Error('JWT_SECRET must be set in production');
 }
 
-export function authMiddleware(req, res, next) {
+export async function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Authentication required' });
@@ -19,13 +19,13 @@ export function authMiddleware(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const session = req.db.prepare('SELECT * FROM sessions WHERE token = ?').get(token);
+    const result = await req.db.execute({ sql: 'SELECT * FROM sessions WHERE token = ?', args: [token] });
+    const session = result.rows[0] ?? null;
 
     if (!session) {
       return res.status(401).json({ error: 'Session expired or invalid' });
     }
 
-    // Check expiration in JavaScript (ISO format comparison)
     if (new Date(session.expires_at) < new Date()) {
       return res.status(401).json({ error: 'Session expired or invalid' });
     }
@@ -36,7 +36,7 @@ export function authMiddleware(req, res, next) {
     };
 
     next();
-  } catch (err) {
+  } catch {
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
 }

@@ -2,13 +2,14 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import {
   LayoutDashboard, List, TrendingUp, Send, Settings,
   Plus, ChevronLeft, ChevronRight, CalendarDays, Download,
-  AlertTriangle, CheckCircle2,
+  AlertTriangle, CheckCircle2, Sun, Moon,
 } from 'lucide-react';
 import { toMonthKey, parseMonthLabel, formatCurrency, INVESTMENT_FIXED } from './db/database';
 import {
   useMonthSummary, useLifetimeTotals, useWriteFlash, useAPIStatus,
   exportBackupJSON, getLastBackupMeta,
 } from './hooks/useDB';
+import { useTheme } from './hooks/useTheme';
 import StatCard           from './components/StatCard';
 import { ToastContainer } from './components/Toast';
 import UserMenu from './components/auth/UserMenu';
@@ -64,7 +65,7 @@ function APIStatusDot() {
 
 function PanelFallback({ label = 'Loading…' }: { label?: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#1a1f2e] p-6">
+    <div className="rounded-2xl border border-white/10 bg-[var(--bg-surface)] p-6">
       <div className="animate-pulse text-sm text-gray-400">{label}</div>
     </div>
   );
@@ -72,6 +73,7 @@ function PanelFallback({ label = 'Loading…' }: { label?: string }) {
 
 export default function App() {
   const now = new Date();
+  const { theme, toggle: toggleTheme } = useTheme();
   const [activeTab,    setActiveTab]    = useState<Tab>('dashboard');
   const [currentMonth, setCurrentMonth] = useState(toMonthKey(now));
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
@@ -107,10 +109,10 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0f1117] text-white flex flex-col">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col">
 
       {/* ── Top Header ── */}
-      <header className="border-b border-white/10 bg-[#0f1117]/95 backdrop-blur-sm sticky top-0 z-40">
+      <header className="border-b border-white/10 bg-[var(--bg-primary)]/95 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
 
           {/* Logo */}
@@ -141,6 +143,13 @@ export default function App() {
           <div className="flex items-center gap-2 shrink-0">
             <WriteFlash />
             <APIStatusDot />
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all"
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
             <UserMenu onOpenSettings={() => setShowProfileSettings(true)} />
 
             {/* Backup Button */}
@@ -162,7 +171,7 @@ export default function App() {
               </button>
 
               {/* Hover tooltip */}
-              <div className="absolute right-0 top-full mt-2 w-68 bg-[#1a1f2e] border border-white/10 rounded-xl p-3 shadow-2xl
+              <div className="absolute right-0 top-full mt-2 w-68 bg-[var(--bg-surface)] border border-white/10 rounded-xl p-3 shadow-2xl
                 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 w-64">
                 <p className="text-xs font-semibold text-white mb-1">What does Backup do?</p>
                 <p className="text-[11px] text-gray-400 leading-relaxed">

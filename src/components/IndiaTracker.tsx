@@ -76,7 +76,7 @@ export default function IndiaTracker() {
 
       {/* Monthly Chart */}
       {monthlyData.length > 0 && (
-        <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+        <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
           <h3 className="text-sm font-semibold text-gray-300 mb-4 flex items-center gap-2">
             <TrendingUp size={15} className="text-orange-400" />
             Monthly Remittances
@@ -97,7 +97,7 @@ export default function IndiaTracker() {
       )}
 
       {/* All Transfers Table */}
-      <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl overflow-hidden">
+      <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl overflow-hidden">
         <div className="px-5 py-4 border-b border-white/10 flex items-center gap-2">
           <Calendar size={15} className="text-gray-400" />
           <h3 className="text-sm font-semibold text-gray-300">All Transfers</h3>

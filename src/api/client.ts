@@ -312,7 +312,7 @@ export const getInvestments  = (month?: string, year?: number) => {
   const q = month ? `?month=${month}` : year ? `?year=${year}` : '';
   return req<Investment[]>(`/investments${q}`);
 };
-export const createInvestment = (data: { note: string; date: string }) =>
+export const createInvestment = (data: { note: string; date: string; amount?: number }) =>
   req<Investment>('/investments', { method: 'POST', body: JSON.stringify(data) });
 export const deleteInvestment = (id: number) =>
   req<{ ok: boolean }>(`/investments/${id}`, { method: 'DELETE' });

@@ -26,7 +26,7 @@ export default function BudgetSetup({ month }: Props) {
   };
 
   return (
-    <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+    <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
       <div className="flex items-center gap-2 mb-4">
         <Target size={18} className="text-purple-400" />
         <h3 className="font-semibold text-white">Budget Setup – {parseMonthLabel(month)}</h3>
@@ -54,7 +54,7 @@ export default function BudgetSetup({ month }: Props) {
                 value={miscBudget}
                 onChange={(e) => setMiscBudget(e.target.value)}
                 placeholder="e.g. 3000"
-                className="w-full bg-[#0f1117] border border-white/10 rounded-xl pl-8 pr-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-colors"
+                className="w-full bg-[var(--bg-primary)] border border-white/10 rounded-xl pl-8 pr-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-colors"
               />
             </div>
             <button

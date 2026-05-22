@@ -64,7 +64,7 @@ export default function YearlyTrends({ year }: Props) {
         ))}
       </div>
 
-      <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+      <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
         <h3 className="text-sm font-semibold text-gray-300 mb-4 flex items-center gap-2">
           <TrendingUp size={15} className="text-purple-400" />
           Monthly Breakdown – {year}
@@ -83,7 +83,7 @@ export default function YearlyTrends({ year }: Props) {
         </ResponsiveContainer>
       </div>
 
-      <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+      <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
         <h3 className="text-sm font-semibold text-gray-300 mb-4">Spending Trend – {year}</h3>
         <ResponsiveContainer width="100%" height={220}>
           <LineChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
@@ -99,7 +99,7 @@ export default function YearlyTrends({ year }: Props) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+        <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
           <h3 className="text-sm font-semibold text-gray-300 mb-4">Category Breakdown – {year}</h3>
           {Object.keys(byCat).length === 0 ? (
             <p className="text-gray-500 text-sm text-center py-8">No expense data</p>
@@ -123,7 +123,7 @@ export default function YearlyTrends({ year }: Props) {
           )}
         </div>
 
-        <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+        <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
           <h3 className="text-sm font-semibold text-gray-300 mb-4">Spending by Day of Week</h3>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={dowData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>

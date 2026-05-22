@@ -312,7 +312,7 @@ export async function removeRemittance(id: number) {
 
 // ─── INVESTMENTS ──────────────────────────────────────────────────────────────
 
-export async function addInvestment(data: { note: string; date: string }) {
+export async function addInvestment(data: { note: string; date: string; amount?: number }) {
   return withFlash(() => createInvestment(data));
 }
 

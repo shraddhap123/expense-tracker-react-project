@@ -32,7 +32,7 @@ export default function ForgotPasswordForm({ onSubmit, onSwitchToLogin, onSwitch
   };
 
   return (
-    <div className="w-full max-w-md bg-[#1a1f2e] border border-white/10 rounded-2xl p-8">
+    <div className="w-full max-w-md bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-8">
       <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-xl font-bold mx-auto mb-4">$</div>
       <h1 className="text-2xl font-bold text-center text-white mb-2">Reset password</h1>
       <p className="text-gray-400 text-center mb-6">Enter your email and we&apos;ll start a password reset.</p>
@@ -44,7 +44,7 @@ export default function ForgotPasswordForm({ onSubmit, onSwitchToLogin, onSwitch
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-2.5 bg-[#0f1117] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
             placeholder="you@example.com"
           />
         </div>
@@ -66,12 +66,12 @@ export default function ForgotPasswordForm({ onSubmit, onSwitchToLogin, onSwitch
             <KeyRound size={14} />
             Reset token ready
           </div>
-          <div className="rounded-lg bg-[#0f1117] border border-white/10 px-3 py-2">
+          <div className="rounded-lg bg-[var(--bg-primary)] border border-white/10 px-3 py-2">
             <p className="text-xs text-gray-500 mb-1">Use this reset token</p>
             <p className="text-xs text-white font-mono break-all">{previewToken}</p>
           </div>
           {resetUrl && (
-            <div className="rounded-lg bg-[#0f1117] border border-white/10 px-3 py-2">
+            <div className="rounded-lg bg-[var(--bg-primary)] border border-white/10 px-3 py-2">
               <p className="text-xs text-gray-500 mb-1">Preview reset link</p>
               <p className="text-xs text-white break-all">{resetUrl}</p>
             </div>

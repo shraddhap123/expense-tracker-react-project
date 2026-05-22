@@ -28,7 +28,7 @@ export default function MoneyStoryTimeline({ limit = 8 }: Props) {
   const { events, loading } = useMoneyStoryTimeline();
 
   return (
-    <section className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5 space-y-4">
+    <section className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5 space-y-4">
       <div className="flex items-center gap-2">
         <Sparkles size={16} className="text-purple-400" />
         <h3 className="text-sm font-semibold text-white">Money Story Timeline</h3>

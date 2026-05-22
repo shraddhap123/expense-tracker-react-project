@@ -58,7 +58,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <AuthLayout>
-        <div className="w-full max-w-md bg-[#1a1f2e] border border-white/10 rounded-2xl p-8 text-center">
+        <div className="w-full max-w-md bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-8 text-center">
           <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-xl font-bold mx-auto mb-4">$</div>
           <div className="animate-pulse text-gray-400">Loading...</div>
         </div>

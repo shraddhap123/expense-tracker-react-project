@@ -40,7 +40,7 @@ export default function ResetPasswordForm({ initialToken = '', onSubmit, onSwitc
   };
 
   return (
-    <div className="w-full max-w-md bg-[#1a1f2e] border border-white/10 rounded-2xl p-8">
+    <div className="w-full max-w-md bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-8">
       <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-xl font-bold mx-auto mb-4">$</div>
       <h1 className="text-2xl font-bold text-center text-white mb-2">Choose a new password</h1>
       <p className="text-gray-400 text-center mb-6">Use the reset link from your email, or paste the token below and set a fresh password for your account.</p>
@@ -53,7 +53,7 @@ export default function ResetPasswordForm({ initialToken = '', onSubmit, onSwitc
             onChange={(e) => setToken(e.target.value)}
             required
             rows={3}
-            className="w-full px-4 py-2.5 bg-[#0f1117] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+            className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
             placeholder="Paste your reset token"
           />
         </div>
@@ -65,7 +65,7 @@ export default function ResetPasswordForm({ initialToken = '', onSubmit, onSwitc
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full px-4 py-2.5 bg-[#0f1117] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
             placeholder="••••••••"
           />
         </div>
@@ -77,7 +77,7 @@ export default function ResetPasswordForm({ initialToken = '', onSubmit, onSwitc
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full px-4 py-2.5 bg-[#0f1117] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
             placeholder="••••••••"
           />
         </div>

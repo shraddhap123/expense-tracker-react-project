@@ -35,7 +35,7 @@ export default function ProfileSettings({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl w-full max-w-xl max-h-[80vh] overflow-y-auto">
+      <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl w-full max-w-xl max-h-[80vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <h2 className="text-xl font-bold text-white">Account</h2>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-lg"><X size={20} className="text-gray-400" /></button>
@@ -51,14 +51,14 @@ export default function ProfileSettings({ onClose }: { onClose: () => void }) {
             <form onSubmit={handleUpdateProfile} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Display Name</label>
-                <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="w-full px-4 py-2.5 bg-[#0f1117] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Display Currency</label>
                 <select
                   value={preferredCurrency}
                   onChange={(e) => setPreferredCurrency(normalizeCurrencyCode(e.target.value))}
-                  className="w-full px-4 py-2.5 bg-[#0f1117] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   {Object.values(SUPPORTED_CURRENCIES).map((currency) => (
                     <option key={currency.code} value={currency.code}>{currency.code} - {currency.name}</option>
@@ -71,9 +71,9 @@ export default function ProfileSettings({ onClose }: { onClose: () => void }) {
                   Change Password
                 </h4>
                 <div className="space-y-3">
-                  <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Current password" className="w-full px-4 py-2.5 bg-[#0f1117] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
-                  <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New password" className="w-full px-4 py-2.5 bg-[#0f1117] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
-                  <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm new password" className="w-full px-4 py-2.5 bg-[#0f1117] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                  <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Current password" className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                  <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New password" className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                  <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm new password" className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
                 </div>
               </div>
               <button type="submit" className="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 rounded-lg text-white font-medium">Save Changes</button>

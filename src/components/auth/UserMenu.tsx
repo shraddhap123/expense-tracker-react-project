@@ -19,7 +19,7 @@ export default function UserMenu({ onOpenSettings }: { onOpenSettings: () => voi
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 mt-2 w-56 bg-[#1a1f2e] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+          <div className="absolute right-0 mt-2 w-56 bg-[var(--bg-surface)] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
             <div className="px-4 py-3 border-b border-white/10">
               <p className="text-sm font-medium text-white">{user.displayName}</p>
               <p className="text-xs text-gray-400">{user.email}</p>

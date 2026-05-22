@@ -26,7 +26,7 @@ function createPasswordResetToken() {
 }
 
 // POST /api/auth/register
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const { email, password, displayName } = req.body;
   const normalizedEmail = email?.trim().toLowerCase();
   const normalizedDisplayName = displayName?.trim();
@@ -42,22 +42,24 @@ router.post('/register', (req, res) => {
   }
 
   try {
-    const existing = req.db.prepare('SELECT id FROM users WHERE email = ?').get(normalizedEmail);
+    const existing = (await req.db.execute({ sql: 'SELECT id FROM users WHERE email = ?', args: [normalizedEmail] })).rows[0] ?? null;
     if (existing) {
       return res.status(409).json({ error: 'Email already registered' });
     }
 
     const passwordHash = bcrypt.hashSync(password, 10);
-    const result = req.db.prepare(
-      'INSERT INTO users (email, password_hash, display_name, role) VALUES (?, ?, ?, ?)'
-    ).run(normalizedEmail, passwordHash, normalizedDisplayName, 'viewer');
+    const insertResult = await req.db.execute({
+      sql: 'INSERT INTO users (email, password_hash, display_name, role) VALUES (?, ?, ?, ?)',
+      args: [normalizedEmail, passwordHash, normalizedDisplayName, 'viewer'],
+    });
+    const newUserId = Number(insertResult.lastInsertRowid);
 
-    const token = jwt.sign({ userId: result.lastInsertRowid, email: normalizedEmail }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
+    const token = jwt.sign({ userId: newUserId, email: normalizedEmail }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-    req.db.prepare('INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)').run(result.lastInsertRowid, token, expiresAt);
+    await req.db.execute({ sql: 'INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)', args: [newUserId, token, expiresAt] });
 
     res.status(201).json({
-      user: { id: result.lastInsertRowid, email: normalizedEmail, displayName: normalizedDisplayName, createdAt: new Date().toISOString(), preferredCurrency: 'USD' },
+      user: { id: newUserId, email: normalizedEmail, displayName: normalizedDisplayName, createdAt: new Date().toISOString(), preferredCurrency: 'USD' },
       token,
     });
   } catch (err) {
@@ -75,57 +77,36 @@ router.post('/forgot-password', async (req, res) => {
   }
 
   try {
-    const user = req.db.prepare('SELECT id, email, display_name FROM users WHERE email = ?').get(normalizedEmail);
+    const user = (await req.db.execute({ sql: 'SELECT id, email, display_name FROM users WHERE email = ?', args: [normalizedEmail] })).rows[0] ?? null;
 
     if (!user) {
-      return res.json({
-        ok: true,
-        message: 'If that email is registered, a password reset link has been prepared.',
-      });
+      return res.json({ ok: true, message: 'If that email is registered, a password reset link has been prepared.' });
     }
 
     const { token, tokenHash } = createPasswordResetToken();
     const expiresAt = new Date(Date.now() + PASSWORD_RESET_EXPIRY_MS).toISOString();
     const resetUrl = buildPasswordResetUrl(token);
 
-    req.db.prepare('DELETE FROM password_reset_tokens WHERE user_id = ?').run(user.id);
-    req.db.prepare(
-      'INSERT INTO password_reset_tokens (user_id, token_hash, expires_at) VALUES (?, ?, ?)'
-    ).run(user.id, tokenHash, expiresAt);
+    await req.db.batch([
+      { sql: 'DELETE FROM password_reset_tokens WHERE user_id = ?', args: [user.id] },
+      { sql: 'INSERT INTO password_reset_tokens (user_id, token_hash, expires_at) VALUES (?, ?, ?)', args: [user.id, tokenHash, expiresAt] },
+    ], 'write');
 
-    const payload = {
-      ok: true,
-      message: 'If that email is registered, a password reset link has been prepared.',
-    };
+    const payload = { ok: true, message: 'If that email is registered, a password reset link has been prepared.' };
 
     if (canSendPasswordResetEmail() && resetUrl) {
-      await sendPasswordResetEmail({
-        to: user.email,
-        displayName: user.display_name,
-        resetUrl,
-        expiresAt,
-      });
+      await sendPasswordResetEmail({ to: user.email, displayName: user.display_name, resetUrl, expiresAt });
       console.log(`📨 Password reset email sent to ${user.email}`);
-
       return res.json(payload);
     }
 
     if (process.env.NODE_ENV === 'production') {
-      console.error('Password reset requested, but email delivery is not configured. Set APP_BASE_URL and SMTP_* variables.');
+      console.error('Password reset requested, but email delivery is not configured.');
       return res.status(503).json({ error: 'Password reset email is not configured yet' });
     }
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`🔑 Password reset token for ${user.email}: ${token}`);
-      return res.json({
-        ...payload,
-        previewToken: token,
-        expiresAt,
-        resetUrl,
-      });
-    }
-
-    res.json(payload);
+    console.log(`🔑 Password reset token for ${user.email}: ${token}`);
+    return res.json({ ...payload, previewToken: token, expiresAt, resetUrl });
   } catch (err) {
     console.error('Forgot password error:', err);
     res.status(500).json({ error: 'Could not start password reset' });
@@ -133,7 +114,7 @@ router.post('/forgot-password', async (req, res) => {
 });
 
 // POST /api/auth/reset-password
-router.post('/reset-password', (req, res) => {
+router.post('/reset-password', async (req, res) => {
   const token = req.body.token?.trim();
   const newPassword = req.body.newPassword;
 
@@ -146,25 +127,21 @@ router.post('/reset-password', (req, res) => {
 
   try {
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-    const resetRow = req.db.prepare(
-      'SELECT * FROM password_reset_tokens WHERE token_hash = ?'
-    ).get(tokenHash);
+    const resetRow = (await req.db.execute({ sql: 'SELECT * FROM password_reset_tokens WHERE token_hash = ?', args: [tokenHash] })).rows[0] ?? null;
 
     if (!resetRow || new Date(resetRow.expires_at) < new Date()) {
       if (resetRow) {
-        req.db.prepare('DELETE FROM password_reset_tokens WHERE id = ?').run(resetRow.id);
+        await req.db.execute({ sql: 'DELETE FROM password_reset_tokens WHERE id = ?', args: [resetRow.id] });
       }
       return res.status(400).json({ error: 'Reset token is invalid or has expired' });
     }
 
     const passwordHash = bcrypt.hashSync(newPassword, 10);
-
-    req.db.transaction(() => {
-      req.db.prepare("UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?")
-        .run(passwordHash, resetRow.user_id);
-      req.db.prepare('DELETE FROM sessions WHERE user_id = ?').run(resetRow.user_id);
-      req.db.prepare('DELETE FROM password_reset_tokens WHERE user_id = ?').run(resetRow.user_id);
-    })();
+    await req.db.batch([
+      { sql: "UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?", args: [passwordHash, resetRow.user_id] },
+      { sql: 'DELETE FROM sessions WHERE user_id = ?', args: [resetRow.user_id] },
+      { sql: 'DELETE FROM password_reset_tokens WHERE user_id = ?', args: [resetRow.user_id] },
+    ], 'write');
 
     res.json({ ok: true });
   } catch (err) {
@@ -174,7 +151,7 @@ router.post('/reset-password', (req, res) => {
 });
 
 // POST /api/auth/login
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   const normalizedEmail = email?.trim().toLowerCase();
 
@@ -183,7 +160,7 @@ router.post('/login', (req, res) => {
   }
 
   try {
-    const user = req.db.prepare('SELECT * FROM users WHERE email = ?').get(normalizedEmail);
+    const user = (await req.db.execute({ sql: 'SELECT * FROM users WHERE email = ?', args: [normalizedEmail] })).rows[0] ?? null;
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -195,12 +172,9 @@ router.post('/login', (req, res) => {
 
     const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-    req.db.prepare('INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)').run(user.id, token, expiresAt);
+    await req.db.execute({ sql: 'INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)', args: [user.id, token, expiresAt] });
 
-    res.json({
-      user: mapUserRow(user),
-      token,
-    });
+    res.json({ user: mapUserRow(user), token });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed' });
@@ -208,21 +182,21 @@ router.post('/login', (req, res) => {
 });
 
 // POST /api/auth/logout
-router.post('/logout', authMiddleware, (req, res) => {
+router.post('/logout', authMiddleware, async (req, res) => {
   const token = req.headers.authorization.substring(7);
-  req.db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
+  await req.db.execute({ sql: 'DELETE FROM sessions WHERE token = ?', args: [token] });
   res.json({ ok: true });
 });
 
 // GET /api/auth/me
-router.get('/me', authMiddleware, (req, res) => {
-  const user = req.db.prepare('SELECT id, email, display_name, created_at, preferred_currency FROM users WHERE id = ?').get(req.user.id);
+router.get('/me', authMiddleware, async (req, res) => {
+  const user = (await req.db.execute({ sql: 'SELECT id, email, display_name, created_at, preferred_currency FROM users WHERE id = ?', args: [req.user.id] })).rows[0] ?? null;
   if (!user) return res.status(404).json({ error: 'User not found' });
   res.json(mapUserRow(user));
 });
 
 // PUT /api/auth/profile
-router.put('/profile', authMiddleware, (req, res) => {
+router.put('/profile', authMiddleware, async (req, res) => {
   const { displayName, currentPassword, newPassword, preferredCurrency } = req.body;
   const normalizedDisplayName = displayName?.trim();
   const normalizedCurrency = preferredCurrency ? normalizeCurrencyCode(preferredCurrency) : null;
@@ -232,7 +206,7 @@ router.put('/profile', authMiddleware, (req, res) => {
       if (!currentPassword) {
         return res.status(400).json({ error: 'Current password required' });
       }
-      const user = req.db.prepare('SELECT * FROM users WHERE id = ?').get(req.user.id);
+      const user = (await req.db.execute({ sql: 'SELECT * FROM users WHERE id = ?', args: [req.user.id] })).rows[0];
       const valid = bcrypt.compareSync(currentPassword, user.password_hash);
       if (!valid) {
         return res.status(401).json({ error: 'Current password incorrect' });
@@ -241,17 +215,17 @@ router.put('/profile', authMiddleware, (req, res) => {
         return res.status(400).json({ error: 'Password must be at least 8 characters' });
       }
       const newHash = bcrypt.hashSync(newPassword, 10);
-      req.db.prepare("UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?").run(newHash, req.user.id);
+      await req.db.execute({ sql: "UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?", args: [newHash, req.user.id] });
     }
 
     if (normalizedDisplayName) {
-      req.db.prepare("UPDATE users SET display_name = ?, updated_at = datetime('now') WHERE id = ?").run(normalizedDisplayName, req.user.id);
+      await req.db.execute({ sql: "UPDATE users SET display_name = ?, updated_at = datetime('now') WHERE id = ?", args: [normalizedDisplayName, req.user.id] });
     }
     if (normalizedCurrency) {
-      req.db.prepare("UPDATE users SET preferred_currency = ?, updated_at = datetime('now') WHERE id = ?").run(normalizedCurrency, req.user.id);
+      await req.db.execute({ sql: "UPDATE users SET preferred_currency = ?, updated_at = datetime('now') WHERE id = ?", args: [normalizedCurrency, req.user.id] });
     }
 
-    const updated = req.db.prepare('SELECT id, email, display_name, created_at, preferred_currency FROM users WHERE id = ?').get(req.user.id);
+    const updated = (await req.db.execute({ sql: 'SELECT id, email, display_name, created_at, preferred_currency FROM users WHERE id = ?', args: [req.user.id] })).rows[0];
     res.json(mapUserRow(updated));
   } catch (err) {
     console.error('Profile update error:', err);

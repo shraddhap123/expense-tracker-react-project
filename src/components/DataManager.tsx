@@ -70,7 +70,7 @@ export default function DataManager() {
     <div className="space-y-5">
 
       {/* ── Server / DB Status ── */}
-      <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+      <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Server size={16} className="text-purple-400" />
@@ -135,7 +135,7 @@ export default function DataManager() {
       </div>
 
       {/* ── Backup & Export ── */}
-      <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+      <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <Database size={16} className="text-purple-400" />
           <h3 className="font-semibold text-white">Backup & Export</h3>
@@ -182,7 +182,7 @@ export default function DataManager() {
       </div>
 
       {/* ── Import ── */}
-      <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+      <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-3">
           <Upload size={16} className="text-blue-400" />
           <h3 className="font-semibold text-white">Restore from Backup</h3>
@@ -210,7 +210,7 @@ export default function DataManager() {
       </div>
 
       {/* ── How data is stored ── */}
-      <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+      <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-3">
           <HardDrive size={16} className="text-gray-400" />
           <h3 className="font-semibold text-white">How Your Account Data Works</h3>

@@ -1,10 +1,11 @@
-import { TrendingUp, TrendingDown, DollarSign, Send, BarChart2 } from 'lucide-react';
-import { useMonthSummary } from '../hooks/useDB';
+import { TrendingUp, TrendingDown, DollarSign, Send, BarChart2, Target } from 'lucide-react';
+import { useMonthSummary, useMonthlyAnalysis } from '../hooks/useDB';
 import { formatCurrency, CATEGORY_COLORS, CATEGORY_EMOJI, parseMonthLabel } from '../db/database';
 import StatCard from './StatCard';
 import SpendingInsights from './SpendingInsights';
 import MoneyStoryTimeline from './MoneyStoryTimeline';
 import SubscriptionDriftDetector from './SubscriptionDriftDetector';
+import WeeklyHeatmap from './WeeklyHeatmap';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -21,7 +22,11 @@ export default function MonthlyOverview({ month }: Props) {
     miscBudget, monthlyBudget, totalSpent, remaining, byCategory,
   } = useMonthSummary(month);
 
+  const { analysis } = useMonthlyAnalysis(month);
+  const projectedSpend = analysis?.totals?.projectedMonthEndSpend ?? null;
+
   const overBudget = remaining < 0;
+  const projectedOverBudget = projectedSpend !== null && monthlyBudget > 0 && projectedSpend > monthlyBudget;
 
   // Pie chart data — budget items only (misc + investment). India shown separately.
   const pieData = [
@@ -76,9 +81,38 @@ export default function MonthlyOverview({ month }: Props) {
         />
       </div>
 
+      {/* Spend Forecast */}
+      {projectedSpend !== null && (
+        <div className={`flex items-center justify-between rounded-2xl border px-5 py-3.5 ${
+          projectedOverBudget
+            ? 'bg-red-500/10 border-red-500/30'
+            : 'bg-emerald-500/10 border-emerald-500/20'
+        }`}>
+          <div className="flex items-center gap-2.5">
+            <Target size={16} className={projectedOverBudget ? 'text-red-400' : 'text-emerald-400'} />
+            <div>
+              <p className="text-sm font-medium text-gray-300">Projected Month-End Spend</p>
+              <p className="text-xs text-gray-500">Based on recurring expenses + spending pace</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className={`text-lg font-bold ${projectedOverBudget ? 'text-red-400' : 'text-emerald-400'}`}>
+              {formatCurrency(projectedSpend)}
+            </p>
+            {monthlyBudget > 0 && (
+              <p className="text-xs text-gray-500">
+                {projectedOverBudget
+                  ? `${formatCurrency(projectedSpend - monthlyBudget)} over budget`
+                  : `${formatCurrency(monthlyBudget - projectedSpend)} buffer`}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Budget Progress Bar */}
       {monthlyBudget > 0 && (
-        <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+        <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-gray-300">Monthly Budget Usage</span>
             <span className={`text-sm font-semibold ${overBudget ? 'text-red-400' : 'text-emerald-400'}`}>
@@ -136,10 +170,13 @@ export default function MonthlyOverview({ month }: Props) {
         <SubscriptionDriftDetector />
       </div>
 
+      {/* Weekly Heatmap */}
+      <WeeklyHeatmap expenses={expenses} month={month} />
+
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Pie */}
-        <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+        <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
           <h3 className="text-sm font-semibold text-gray-300 mb-4">Spending Breakdown</h3>
           {pieData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
@@ -159,7 +196,7 @@ export default function MonthlyOverview({ month }: Props) {
         </div>
 
         {/* Daily Bar */}
-        <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+        <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
           <h3 className="text-sm font-semibold text-gray-300 mb-4">Daily Spending – {parseMonthLabel(month)}</h3>
           {dailyData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
@@ -179,7 +216,7 @@ export default function MonthlyOverview({ month }: Props) {
 
       {/* Category Breakdown */}
       {Object.keys(byCategory).length > 0 && (
-        <div className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5">
+        <div className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5">
           <h3 className="text-sm font-semibold text-gray-300 mb-4">Category Breakdown</h3>
           <div className="space-y-3">
             {Object.entries(byCategory)

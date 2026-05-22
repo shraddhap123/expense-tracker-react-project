@@ -6,7 +6,7 @@ export default function SubscriptionDriftDetector() {
   const { subscriptions, loading } = useSubscriptionDrift();
 
   return (
-    <section className="bg-[#1a1f2e] border border-white/10 rounded-2xl p-5 space-y-4">
+    <section className="bg-[var(--bg-surface)] border border-white/10 rounded-2xl p-5 space-y-4">
       <div className="flex items-center gap-2">
         <Repeat size={16} className="text-cyan-400" />
         <h3 className="text-sm font-semibold text-white">Subscription Drift Detector</h3>
@@ -41,11 +41,11 @@ export default function SubscriptionDriftDetector() {
               </div>
 
               <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <div className="rounded-lg bg-[#0f1117] px-3 py-2">
+                <div className="rounded-lg bg-[var(--bg-primary)] px-3 py-2">
                   <p className="text-[11px] text-gray-500">Earlier average</p>
                   <p className="text-sm text-white">{formatCurrency(subscription.previousAverage)}</p>
                 </div>
-                <div className="rounded-lg bg-[#0f1117] px-3 py-2">
+                <div className="rounded-lg bg-[var(--bg-primary)] px-3 py-2">
                   <p className="text-[11px] text-gray-500">Increase</p>
                   <p className="text-sm text-white">{subscription.increasePercent.toFixed(0)}%</p>
                 </div>
