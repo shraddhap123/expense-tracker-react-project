@@ -15,8 +15,21 @@ export default function RegisterForm({
   const [error,       setError]       = useState<string | null>(null);
   const [success,     setSuccess]     = useState(false);
 
+  const passwordRules = [
+    { label: 'At least 8 characters',       pass: password.length >= 8 },
+    { label: 'One uppercase letter (A-Z)',   pass: /[A-Z]/.test(password) },
+    { label: 'One lowercase letter (a-z)',   pass: /[a-z]/.test(password) },
+    { label: 'One number (0-9)',             pass: /[0-9]/.test(password) },
+    { label: 'One special character (!@#$)', pass: /[^A-Za-z0-9]/.test(password) },
+  ];
+  const passwordValid = passwordRules.every(r => r.pass);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!passwordValid) {
+      setError('Please make sure your password meets all the requirements below.');
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
@@ -67,7 +80,30 @@ export default function RegisterForm({
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={8}
               className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="••••••••" />
-            <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
+            {/* Password strength checklist */}
+            {password.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {passwordRules.map(rule => (
+                  <div key={rule.label} className="flex items-center gap-2">
+                    <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 transition-all ${
+                      rule.pass ? 'bg-emerald-500' : 'bg-white/10'
+                    }`}>
+                      {rule.pass && (
+                        <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                          <path d="M1 4l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className={`text-xs transition-colors ${rule.pass ? 'text-emerald-400' : 'text-gray-500'}`}>
+                      {rule.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {password.length === 0 && (
+              <p className="text-xs text-gray-500 mt-1">Min 8 chars, uppercase, number & special character</p>
+            )}
           </div>
 
           {error && (
