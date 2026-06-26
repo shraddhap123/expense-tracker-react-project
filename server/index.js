@@ -171,6 +171,40 @@ async function initializeDatabase() {
     );
     CREATE INDEX IF NOT EXISTS idx_expenses_month           ON expenses(month);
     CREATE INDEX IF NOT EXISTS idx_expenses_year            ON expenses(year);
+    CREATE INDEX IF NOT EXISTS idx_sessions_token           ON sessions(token);
+    CREATE INDEX IF NOT EXISTS idx_sessions_user            ON sessions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_password_reset_user      ON password_reset_tokens(user_id);
+    CREATE INDEX IF NOT EXISTS idx_recurring_rules_user     ON recurring_expense_rules(user_id);
+    CREATE INDEX IF NOT EXISTS idx_recurring_skips_user     ON recurring_expense_skips(user_id, recurring_rule_id, month);
+  `);
+
+  // Migrations — add columns that may be missing from older local DBs
+  const migrations = [
+    { table: 'expenses',      col: 'user_id',         sql: 'ALTER TABLE expenses ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1' },
+    { table: 'expenses',      col: 'original_amount', sql: 'ALTER TABLE expenses ADD COLUMN original_amount REAL NOT NULL DEFAULT 0' },
+    { table: 'expenses',      col: 'currency_code',   sql: 'ALTER TABLE expenses ADD COLUMN currency_code TEXT NOT NULL DEFAULT "USD"' },
+    { table: 'expenses',      col: 'recurring_rule_id', sql: 'ALTER TABLE expenses ADD COLUMN recurring_rule_id INTEGER' },
+    { table: 'remittances',   col: 'user_id',         sql: 'ALTER TABLE remittances ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1' },
+    { table: 'remittances',   col: 'original_amount', sql: 'ALTER TABLE remittances ADD COLUMN original_amount REAL NOT NULL DEFAULT 0' },
+    { table: 'remittances',   col: 'currency_code',   sql: 'ALTER TABLE remittances ADD COLUMN currency_code TEXT NOT NULL DEFAULT "USD"' },
+    { table: 'investments',   col: 'user_id',         sql: 'ALTER TABLE investments ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1' },
+    { table: 'investments',   col: 'original_amount', sql: 'ALTER TABLE investments ADD COLUMN original_amount REAL NOT NULL DEFAULT 2500' },
+    { table: 'investments',   col: 'currency_code',   sql: 'ALTER TABLE investments ADD COLUMN currency_code TEXT NOT NULL DEFAULT "USD"' },
+    { table: 'month_configs', col: 'user_id',         sql: 'ALTER TABLE month_configs ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1' },
+    { table: 'month_configs', col: 'invest_amount',   sql: 'ALTER TABLE month_configs ADD COLUMN invest_amount REAL NOT NULL DEFAULT 2500' },
+  ];
+
+  for (const { table, col, sql } of migrations) {
+    const info = (await client.execute({ sql: `PRAGMA table_info(${table})`, args: [] })).rows;
+    const hasCol = info.some(r => r.name === col);
+    if (!hasCol) {
+      await client.execute({ sql, args: [] });
+      console.log(`✅ Migration: added ${table}.${col}`);
+    }
+  }
+
+  // Indexes that depend on user_id (created after migrations so the column exists)
+  await client.executeMultiple(`
     CREATE INDEX IF NOT EXISTS idx_expenses_user_month      ON expenses(user_id, month);
     CREATE INDEX IF NOT EXISTS idx_expenses_recurring_rule  ON expenses(recurring_rule_id);
     CREATE INDEX IF NOT EXISTS idx_remit_month              ON remittances(month);
@@ -180,11 +214,6 @@ async function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_invest_year              ON investments(year);
     CREATE INDEX IF NOT EXISTS idx_investments_user_month   ON investments(user_id, month);
     CREATE INDEX IF NOT EXISTS idx_month_configs_user_month ON month_configs(user_id, month);
-    CREATE INDEX IF NOT EXISTS idx_sessions_token           ON sessions(token);
-    CREATE INDEX IF NOT EXISTS idx_sessions_user            ON sessions(user_id);
-    CREATE INDEX IF NOT EXISTS idx_password_reset_user      ON password_reset_tokens(user_id);
-    CREATE INDEX IF NOT EXISTS idx_recurring_rules_user     ON recurring_expense_rules(user_id);
-    CREATE INDEX IF NOT EXISTS idx_recurring_skips_user     ON recurring_expense_skips(user_id, recurring_rule_id, month);
   `);
 
   // Bootstrap default user if none exist
