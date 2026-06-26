@@ -322,8 +322,8 @@ export async function removeInvestment(id: number) {
 
 // ─── MONTH CONFIG ─────────────────────────────────────────────────────────────
 
-export async function saveMonthConfig(month: string, miscBudget: number) {
-  return withFlash(() => apiSaveMonthConfig(month, miscBudget));
+export async function saveMonthConfig(month: string, miscBudget: number, investAmount?: number) {
+  return withFlash(() => apiSaveMonthConfig(month, miscBudget, investAmount));
 }
 
 // ─── EXPORT / BACKUP ──────────────────────────────────────────────────────────

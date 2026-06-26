@@ -751,12 +751,13 @@ app.get('/api/month-config/:month', authMiddleware, async (req, res) => {
 });
 
 app.post('/api/month-config', authMiddleware, async (req, res) => {
-  const { month, miscBudget } = req.body;
+  const { month, miscBudget, investAmount } = req.body;
   if (!month || miscBudget === undefined) return res.status(400).json({ error: 'Missing fields' });
+  const invest = Number(investAmount) >= 0 ? Number(investAmount) : 2500;
   try {
     await client.execute({
-      sql: `INSERT INTO month_configs (month, misc_budget, invest_amount, user_id, updated_at) VALUES (?, ?, 2500, ?, datetime('now')) ON CONFLICT(month, user_id) DO UPDATE SET misc_budget=excluded.misc_budget, updated_at=excluded.updated_at`,
-      args: [month, miscBudget, req.user.id],
+      sql: `INSERT INTO month_configs (month, misc_budget, invest_amount, user_id, updated_at) VALUES (?, ?, ?, ?, datetime('now')) ON CONFLICT(month, user_id) DO UPDATE SET misc_budget=excluded.misc_budget, invest_amount=excluded.invest_amount, updated_at=excluded.updated_at`,
+      args: [month, miscBudget, invest, req.user.id],
     });
     const row = (await client.execute({ sql: 'SELECT * FROM month_configs WHERE month = ? AND user_id = ?', args: [month, req.user.id] })).rows[0];
     res.json(row);

@@ -321,8 +321,8 @@ export const deleteInvestment = (id: number) =>
 
 export const getMonthConfig  = (month: string) =>
   req<MonthConfig | null>(`/month-config/${month}`);
-export const saveMonthConfig = (month: string, miscBudget: number) =>
-  req<MonthConfig>('/month-config', { method: 'POST', body: JSON.stringify({ month, miscBudget }) });
+export const saveMonthConfig = (month: string, miscBudget: number, investAmount?: number) =>
+  req<MonthConfig>('/month-config', { method: 'POST', body: JSON.stringify({ month, miscBudget, investAmount }) });
 
 // ─── Aggregates ───────────────────────────────────────────────────────────────
 
