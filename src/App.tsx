@@ -341,7 +341,7 @@ export default function App() {
         </header>
 
         {/* Page content with tab transition */}
-        <main className="flex-1 p-4 lg:p-6 overflow-auto">
+        <main className="flex-1 p-4 lg:p-6 pb-32 lg:pb-6 overflow-auto">
 
           {activeTab === 'india' && (
             <div className="grid grid-cols-3 gap-3 mb-6 animate-slide-up">
@@ -416,40 +416,44 @@ export default function App() {
       </div>
 
       {/* ── Mobile bottom nav ── */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-white/8 bg-[var(--bg-sidebar)]/95 backdrop-blur-md">
-        <div className="flex items-center justify-around px-2 py-2">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg-sidebar)]/95 backdrop-blur-md"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        {/* Top border only — no overflow hidden so + button shows fully */}
+        <div className="border-t border-white/8" />
+        <div className="flex items-end justify-around px-2 pt-2 pb-3">
           {NAV_ITEMS.slice(0, 4).map(({ id, label, icon: Icon }) => {
             const active = activeTab === id;
             return (
               <button
                 key={id}
                 onClick={e => { ripple(e); switchTab(id); }}
-                className={`ripple-btn flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all ${
+                className={`ripple-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${
                   active ? 'text-purple-400' : 'text-gray-500'
                 }`}
               >
-                <Icon size={20} />
-                <span className="text-[10px] font-medium">{label}</span>
-                {active && <span className="w-1 h-1 rounded-full bg-purple-400 mt-0.5" />}
+                <Icon size={21} />
+                <span className="text-[10px] font-medium leading-none">{label}</span>
+                {active && <span className="w-1 h-1 rounded-full bg-purple-400" />}
               </button>
             );
           })}
-          {/* Add button in center */}
+
+          {/* Floating Add button — lifted above nav */}
           <button
             onClick={e => { ripple(e); setShowAddModal(true); }}
-            className="ripple-btn flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl text-white transition-all active:scale-95"
+            className="ripple-btn flex flex-col items-center gap-1 px-3 active:scale-95 transition-transform"
           >
-            <div className="w-10 h-10 rounded-full flex items-center justify-center -mt-5 shadow-lg"
-              style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', boxShadow: '0 4px 16px rgba(139,92,246,0.5)' }}>
-              <Plus size={20} />
+            <div className="w-12 h-12 rounded-full flex items-center justify-center -mt-7 shadow-xl"
+              style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', boxShadow: '0 4px 20px rgba(139,92,246,0.55)' }}>
+              <Plus size={22} className="text-white" />
             </div>
-            <span className="text-[10px] font-medium text-gray-500 mt-0.5">Add</span>
+            <span className="text-[10px] font-medium text-gray-500 leading-none">Add</span>
           </button>
         </div>
       </nav>
 
-      {/* Spacer so content doesn't hide behind bottom nav on mobile */}
-      <div className="lg:hidden h-20" />
+      {/* Spacer — tall enough to clear bottom nav + safe area */}
+      <div className="lg:hidden h-28" />
 
       {showAddModal && (
         <Suspense fallback={null}>
