@@ -415,12 +415,9 @@ export default function App() {
         </main>
       </div>
 
-      {/* ── Mobile bottom nav ── */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg-sidebar)]/95 backdrop-blur-md"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        {/* Top border only — no overflow hidden so + button shows fully */}
-        <div className="border-t border-white/8" />
-        <div className="flex items-end justify-around px-2 pt-2 pb-3">
+      {/* ── Mobile bottom nav bar ── */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-white/8 bg-[var(--bg-sidebar)]/95 backdrop-blur-md">
+        <div className="flex items-center justify-around px-2 pt-2 pb-3">
           {NAV_ITEMS.slice(0, 4).map(({ id, label, icon: Icon }) => {
             const active = activeTab === id;
             return (
@@ -433,26 +430,28 @@ export default function App() {
               >
                 <Icon size={21} />
                 <span className="text-[10px] font-medium leading-none">{label}</span>
-                {active && <span className="w-1 h-1 rounded-full bg-purple-400" />}
+                {active && <span className="w-1 h-1 rounded-full bg-purple-400 mt-0.5" />}
               </button>
             );
           })}
-
-          {/* Floating Add button — lifted above nav */}
-          <button
-            onClick={e => { ripple(e); setShowAddModal(true); }}
-            className="ripple-btn flex flex-col items-center gap-1 px-3 active:scale-95 transition-transform"
-          >
-            <div className="w-12 h-12 rounded-full flex items-center justify-center -mt-7 shadow-xl"
-              style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', boxShadow: '0 4px 20px rgba(139,92,246,0.55)' }}>
-              <Plus size={22} className="text-white" />
-            </div>
-            <span className="text-[10px] font-medium text-gray-500 leading-none">Add</span>
-          </button>
+          {/* Placeholder to keep spacing symmetrical */}
+          <div className="w-16" />
         </div>
       </nav>
 
-      {/* Spacer — tall enough to clear bottom nav + safe area */}
+      {/* ── Floating Add button (separate from nav so it's not clipped) ── */}
+      <button
+        onClick={e => { ripple(e); setShowAddModal(true); }}
+        className="ripple-btn lg:hidden fixed z-50 active:scale-95 transition-transform"
+        style={{ bottom: '52px', left: '50%', transform: 'translateX(-50%)' }}
+      >
+        <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-xl"
+          style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', boxShadow: '0 4px 20px rgba(139,92,246,0.6)' }}>
+          <Plus size={24} className="text-white" />
+        </div>
+      </button>
+
+      {/* Spacer — tall enough to clear bottom nav */}
       <div className="lg:hidden h-28" />
 
       {showAddModal && (
