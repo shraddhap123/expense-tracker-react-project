@@ -92,9 +92,9 @@ export default function BudgetSetup({ month }: Props) {
 
         {/* India warning — clearly visible */}
         <div className="flex items-start gap-3 rounded-xl px-4 py-3 border"
-          style={{ backgroundColor: 'rgba(245,158,11,0.12)', borderColor: 'rgba(245,158,11,0.35)' }}>
-          <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
-          <p className="text-sm text-amber-300 leading-relaxed">
+          style={{ backgroundColor: 'rgba(245,158,11,0.12)', borderColor: 'rgba(245,158,11,0.4)' }}>
+          <AlertTriangle size={16} style={{ color: '#d97706' }} className="shrink-0 mt-0.5" />
+          <p className="text-sm leading-relaxed" style={{ color: '#92400e' }}>
             <span className="font-semibold">India remittances are not counted in your budget</span> — they are tracked separately under Transfers and do not affect your remaining budget.
           </p>
         </div>
