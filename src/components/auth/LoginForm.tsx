@@ -23,10 +23,14 @@ export default function LoginForm({
       await onLogin(email, password);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Something went wrong';
-      if (msg.toLowerCase().includes('invalid credentials') || msg.toLowerCase().includes('not found')) {
+      if (msg.toLowerCase().includes('invalid credentials')) {
+        setError('Wrong email or password. Please try again.');
+      } else if (msg.toLowerCase().includes('not found') || msg.toLowerCase().includes('no account')) {
         setError('No account found with this email. Please create one first.');
+      } else if (msg.toLowerCase().includes('network') || msg.toLowerCase().includes('fetch')) {
+        setError('Connection error. Please check your internet and try again.');
       } else {
-        setError(msg);
+        setError(msg || 'Something went wrong. Please try again.');
       }
     } finally {
       setSubmitting(false);
