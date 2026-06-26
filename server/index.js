@@ -1001,6 +1001,19 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true, db: IS_PRODUCTION ? 'turso' : DB_PATH, time: new Date().toISOString() });
 });
 
+// Admin password reset — protected by ADMIN_SECRET env var
+app.post('/api/admin/reset-password', async (req, res) => {
+  const { secret, email, newPassword } = req.body;
+  if (!process.env.ADMIN_SECRET || secret !== process.env.ADMIN_SECRET) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  const user = (await client.execute({ sql: 'SELECT id FROM users WHERE email = ?', args: [email?.trim().toLowerCase()] })).rows[0];
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  const hash = bcrypt.hashSync(newPassword, 10);
+  await client.execute({ sql: 'UPDATE users SET password_hash = ? WHERE id = ?', args: [hash, user.id] });
+  res.json({ ok: true, message: 'Password updated' });
+});
+
 app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found' }));
 
 if (fs.existsSync(DIST_INDEX)) {
