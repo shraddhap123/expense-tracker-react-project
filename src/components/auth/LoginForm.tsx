@@ -13,11 +13,24 @@ export default function LoginForm({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    try { await onLogin(email, password); } finally { setSubmitting(false); }
+    setError(null);
+    try {
+      await onLogin(email, password);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Something went wrong';
+      if (msg.toLowerCase().includes('invalid credentials') || msg.toLowerCase().includes('not found')) {
+        setError('No account found with this email. Please create one first.');
+      } else {
+        setError(msg);
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -39,6 +52,20 @@ export default function LoginForm({
             Forgot password?
           </button>
         </div>
+        {error && (
+          <div className="rounded-xl bg-red-500/10 border border-red-500/25 px-4 py-3">
+            <p className="text-sm text-red-300">{error}</p>
+            {error.includes('create one') && (
+              <button
+                type="button"
+                onClick={onSwitchToRegister}
+                className="mt-2 text-sm font-semibold text-purple-400 hover:text-purple-300 underline"
+              >
+                Create an account →
+              </button>
+            )}
+          </div>
+        )}
         <button type="submit" disabled={submitting} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-600/50 rounded-lg text-white font-medium">
           <LogIn size={18} />{submitting ? 'Signing in...' : 'Sign In'}
         </button>
