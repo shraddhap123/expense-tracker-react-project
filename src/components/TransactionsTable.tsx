@@ -77,25 +77,47 @@ function TxCard({
         {meta.emoji}
       </div>
 
-      {/* Main content */}
+      {/* Main content — takes remaining space */}
       <div className="flex-1 min-w-0">
-        {isEditing ? (
-          <input
-            value={editDesc}
-            onChange={e => onEditDesc(e.target.value)}
-            className="w-full bg-white/8 border border-white/15 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-purple-500 mb-1"
-            autoFocus
-          />
-        ) : (
-          <p className="text-sm font-medium text-gray-100 truncate">{meta.desc}</p>
-        )}
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full"
+        {/* Top row: description + amount */}
+        <div className="flex items-start justify-between gap-2">
+          {isEditing ? (
+            <input
+              value={editDesc}
+              onChange={e => onEditDesc(e.target.value)}
+              className="flex-1 bg-white/8 border border-white/15 rounded-lg px-3 py-1 text-sm text-white focus:outline-none focus:border-purple-500"
+              autoFocus
+            />
+          ) : (
+            <p className="text-sm font-medium text-gray-100 truncate flex-1">{meta.desc}</p>
+          )}
+          <div className="shrink-0 text-right ml-2">
+            {isEditing ? (
+              <input
+                value={editAmt}
+                onChange={e => onEditAmt(e.target.value)}
+                type="number"
+                className="w-20 bg-white/8 border border-white/15 rounded-lg px-2 py-1 text-sm text-white text-right focus:outline-none focus:border-purple-500"
+              />
+            ) : (
+              <>
+                <p className="text-sm font-bold text-white whitespace-nowrap">−{formatCurrency(row.data.amount)}</p>
+                {row.data.currency_code && row.data.currency_code !== 'USD' && (
+                  <p className="text-[10px] text-gray-600">{formatOriginalCurrency(row.data.original_amount, row.data.currency_code)}</p>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom row: category pill + date */}
+        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full shrink-0"
             style={{ backgroundColor: `${meta.color}20`, color: meta.color }}>
             {meta.label}
           </span>
           {row.kind === 'expense' && (row.data as Expense).recurring_rule_id && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400">
+            <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 shrink-0">
               <Repeat size={9} /> Recurring
             </span>
           )}
@@ -103,29 +125,10 @@ function TxCard({
         </div>
       </div>
 
-      {/* Amount */}
-      <div className="shrink-0 text-right">
-        {isEditing ? (
-          <input
-            value={editAmt}
-            onChange={e => onEditAmt(e.target.value)}
-            type="number"
-            className="w-24 bg-white/8 border border-white/15 rounded-lg px-3 py-1.5 text-sm text-white text-right focus:outline-none focus:border-purple-500"
-          />
-        ) : (
-          <>
-            <p className="text-sm font-bold text-white">−{formatCurrency(row.data.amount)}</p>
-            {row.data.currency_code && row.data.currency_code !== 'USD' && (
-              <p className="text-[10px] text-gray-600">{formatOriginalCurrency(row.data.original_amount, row.data.currency_code)}</p>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Actions — visible on hover or when editing/confirming */}
+      {/* Actions — visible on hover/tap or when editing/confirming */}
       <div className={cn(
         'shrink-0 flex items-center gap-1.5 transition-all duration-200',
-        isEditing || isConfirming ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+        isEditing || isConfirming ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100',
       )}>
         {isEditing ? (
           <>
@@ -296,12 +299,12 @@ export default function TransactionsTable({ expenses, remittances, investments }
           </div>
 
           {/* Filters */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <SlidersHorizontal size={14} className="text-gray-600 shrink-0" />
             <select
               value={kindFilter}
               onChange={e => setKindFilter(e.target.value as 'all' | Row['kind'])}
-              className="px-3 py-2.5 bg-[var(--bg-primary)] border border-white/8 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-purple-500/60 transition-colors"
+              className="flex-1 min-w-[100px] px-3 py-2 bg-[var(--bg-primary)] border border-white/8 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-purple-500/60 transition-colors"
             >
               <option value="all">All types</option>
               <option value="expense">Expenses</option>
@@ -311,7 +314,7 @@ export default function TransactionsTable({ expenses, remittances, investments }
             <select
               value={categoryFilter}
               onChange={e => setCategoryFilter(e.target.value)}
-              className="px-3 py-2.5 bg-[var(--bg-primary)] border border-white/8 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-purple-500/60 transition-colors"
+              className="flex-1 min-w-[100px] px-3 py-2 bg-[var(--bg-primary)] border border-white/8 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-purple-500/60 transition-colors"
             >
               <option value="all">All categories</option>
               {expenseCategories.map(cat => (
